@@ -26,8 +26,8 @@ func (s *Server) AddNode(node *Node) {
 		s.Nodes[node.Addr] = node
 		for _, remoteNode := range s.Nodes {
 			if remoteNode.Addr != node.Addr {
-				node.Neighbor = append(node.Neighbor, *remoteNode)
 				remoteNode.Neighbor = append(remoteNode.Neighbor, *node)
+				node.Neighbor = append(node.Neighbor, *remoteNode)
 			}
 		}
 		// After a new node inform all other nodes about it too

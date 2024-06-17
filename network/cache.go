@@ -11,11 +11,11 @@ type CacheItem struct {
 	TTL   int64
 }
 
-func NewCacheItem(key string, value interface{}, duration time.Duration) *CacheItem {
+func NewCacheItem(key string, value interface{}, duration int64) *CacheItem {
 	return &CacheItem{
 		Key:   key,
 		Value: value,
-		TTL:   time.Now().Add(duration).UnixNano(),
+		TTL:   duration,
 	}
 }
 
@@ -34,11 +34,7 @@ func (c *Cache) Add(key string, value interface{}, duration time.Duration) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
 	expiration := time.Now().Add(duration).UnixNano()
-	c.Items[key] = CacheItem{
-		Key:   key,
-		Value: value,
-		TTL:   expiration,
-	}
+	c.Items[key] = *NewCacheItem(key, value, expiration)
 }
 
 func (c *Cache) Get(key string) (interface{}, bool) {
