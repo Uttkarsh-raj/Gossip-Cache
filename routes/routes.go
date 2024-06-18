@@ -17,7 +17,9 @@ func AddRoutes(server *network.Server) {
 		if !present {
 			node = network.CreateNode(ip)
 		}
-		server.AddNode(node)
+		// add nodes and retrieve other nodes
+		server.AddAndStartGossip(node)
+
 	})
 
 	// Retrieve the cache from the in-memory cache as the data is stored locally after knowing the peers

@@ -23,6 +23,18 @@ func NewServer() *Server {
 }
 
 // Add a new Node-> User to the network and inform about other nodes
+func (s *Server) AddAndStartGossip(node *Node) {
+	s.AddNode(node)
+	// Gossip starts...
+	// get all the cache data and then share it with other peers
+	for {
+		go StartGossip(node)
+		time.Sleep(time.Second * 5)
+		println(len(node.Cache.Items))
+	}
+}
+
+// Add a new Node-> User to the network
 func (s *Server) AddNode(node *Node) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
@@ -36,12 +48,5 @@ func (s *Server) AddNode(node *Node) {
 				node.Neighbor = append(node.Neighbor, remoteNode)
 			}
 		}
-	}
-	// Gossip starts...
-	// get all the cache data and then share it with other peers
-	for {
-		go StartGossip(node)
-		time.Sleep(time.Second * 5)
-		println(len(node.Cache.Items))
 	}
 }
