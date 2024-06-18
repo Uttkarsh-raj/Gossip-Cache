@@ -1,6 +1,9 @@
 package network
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 // It acts like a gateway from where the nodes can identify
 // each other and then can communicate with each other
@@ -21,6 +24,7 @@ func NewServer() *Server {
 func (s *Server) AddNode(node *Node) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
+	// After a new node inform all other nodes about it
 	_, pres := s.Nodes[node.Addr]
 	if !pres {
 		s.Nodes[node.Addr] = node
@@ -30,13 +34,12 @@ func (s *Server) AddNode(node *Node) {
 				node.Neighbor = append(node.Neighbor, remoteNode)
 			}
 		}
-		testNode := CreateNode("123.23.45.33")
-		testNode2 := CreateNode("232.122.22.10")
-		node.Neighbor = append(node.Neighbor, testNode)
-		node.Neighbor = append(node.Neighbor, testNode2)
 	}
-	// After a new node inform all other nodes about it too
 	// Gossip starts...
-	StartGossip(node)
 	// get all the cache data and then share it with other peers
+	for {
+		go StartGossip(node)
+		time.Sleep(time.Second * 5)
+		println(len(node.Cache.Items))
+	}
 }

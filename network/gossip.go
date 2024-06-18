@@ -6,14 +6,11 @@ import (
 )
 
 func StartGossip(node *Node) {
-
 	// select a random neighbor if neighbors are present
 	if len(node.Neighbor) > 0 {
-		// rand.Seed(time.Now().UnixNano()) // seed or it will be set to 1
-		rand.NewSource(time.Now().UnixNano())
-		nodeIndex := rand.Intn(len(node.Neighbor))
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		nodeIndex := r.Intn(len(node.Neighbor))
 		selectedNode := node.Neighbor[nodeIndex]
-		print(selectedNode.Addr)
 
 		// share cache/data with them and add there cache/data to here
 		for key, cacheItem := range selectedNode.Cache.Items {
@@ -21,6 +18,7 @@ func StartGossip(node *Node) {
 			if !present {
 				node.Cache.Items[key] = cacheItem
 			}
+
 			// Check the latest change to the cache
 			if currCacheItem.TTL > cacheItem.TTL {
 				node.Cache.Items[key] = currCacheItem
