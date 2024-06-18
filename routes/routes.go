@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 
@@ -60,8 +61,16 @@ func AddRoutes(server *network.Server) {
 			return
 		}
 
+		// Read the request body
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+			return
+		}
+		defer r.Body.Close()
+
 		var item network.CacheItem
-		err := json.NewDecoder(r.Body).Decode(&item)
+		err = json.Unmarshal(body, &item)
 		if err != nil {
 			http.Error(w, "Invalid request payload", http.StatusBadRequest)
 			return
@@ -75,3 +84,8 @@ func AddRoutes(server *network.Server) {
 	})
 
 }
+
+// Requests:
+// Connection Req - curl http://localhost:3000/
+// Get Req - curl http://localhost:3000/get/:key
+// Post Req - curl.exe -X POST http://localhost:3000/set -d '{\"key\":\"test\",\"value\":\"data\",\"ttl\":2000}' -H "Content-Type: application/json"

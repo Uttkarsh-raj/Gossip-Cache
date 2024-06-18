@@ -14,6 +14,10 @@ func StartGossip(node *Node) {
 
 		// share cache/data with them and add there cache/data to here
 		for key, cacheItem := range selectedNode.Cache.Items {
+			// if expired no need to do anything
+			if cacheItem.TTL < time.Now().UnixMicro() {
+				continue
+			}
 			currCacheItem, present := node.Cache.Items[key]
 			if !present {
 				node.Cache.Items[key] = cacheItem

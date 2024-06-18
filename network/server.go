@@ -38,7 +38,7 @@ func (s *Server) AddAndStartGossip(node *Node) {
 func (s *Server) AddNode(node *Node) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
-	// After a new node inform all other nodes about it
+	// After a new node is discovered inform all other nodes about it
 	_, pres := s.Nodes[node.Addr]
 	if !pres {
 		s.Nodes[node.Addr] = node
