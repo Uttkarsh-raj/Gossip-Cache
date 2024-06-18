@@ -15,12 +15,14 @@ type Server struct {
 	Mutex sync.Mutex
 }
 
+// New Instance of the server
 func NewServer() *Server {
 	return &Server{
 		Nodes: make(map[string]*Node),
 	}
 }
 
+// Add a new Node-> User to the network and inform about other nodes
 func (s *Server) AddNode(node *Node) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()

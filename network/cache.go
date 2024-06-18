@@ -1,14 +1,15 @@
 package network
 
 import (
+	"errors"
 	"sync"
 	"time"
 )
 
 type CacheItem struct {
-	Key   string
-	Value interface{}
-	TTL   int64
+	Key   string      `json:"key"`
+	Value interface{} `json:"value"`
+	TTL   int64       `json:"ttl"`
 }
 
 func NewCacheItem(key string, value interface{}, duration int64) *CacheItem {
@@ -30,21 +31,32 @@ func NewCache() *Cache {
 	}
 }
 
-func (c *Cache) Add(key string, value interface{}, duration time.Duration) {
+func (c *Cache) Add(key string, value interface{}, duration int64) (string, CacheItem) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
-	expiration := time.Now().Add(duration).UnixNano()
+	expiration := time.Now().Add(time.Duration(duration) * time.Second).UnixNano()
+	item, present := c.Items[key]
+	if present {
+		item.TTL = expiration
+		item.Value = value
+		return "Updated the value!!", item
+	}
 	c.Items[key] = *NewCacheItem(key, value, expiration)
+	return "New value successfully added", c.Items[key]
 }
 
-func (c *Cache) Get(key string) (interface{}, bool) {
+func (c *Cache) Get(key string) (CacheItem, bool, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
 	item, isPresent := c.Items[key]
-	if !isPresent || item.TTL < time.Now().UnixNano() {
-		return nil, false
+	currentTime := time.Now().UnixNano()
+	if !isPresent {
+		return CacheItem{}, false, errors.New("error: Key does not exist")
 	}
-	return item.Value, true
+	if item.TTL < currentTime {
+		return CacheItem{}, false, errors.New("error: Key expired. TTL crossed")
+	}
+	return item, true, nil
 }
 
 func (c *Cache) Delete(key string) {
