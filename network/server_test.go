@@ -19,7 +19,7 @@ func TestServer(t *testing.T) {
 	testNode := CreateNode("123.23.34.54")
 	testServer.AddNode(testNode)
 
-	expectedNeighbors := []Node{*node1, *node2, *node3}
+	expectedNeighbors := []*Node{node1, node2, node3}
 
 	// Check if testNode has the correct neighbors
 	assert.ElementsMatch(t, expectedNeighbors, testNode.Neighbor, "Neighbors do not match")

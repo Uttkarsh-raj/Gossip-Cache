@@ -26,12 +26,17 @@ func (s *Server) AddNode(node *Node) {
 		s.Nodes[node.Addr] = node
 		for _, remoteNode := range s.Nodes {
 			if remoteNode.Addr != node.Addr {
-				remoteNode.Neighbor = append(remoteNode.Neighbor, *node)
-				node.Neighbor = append(node.Neighbor, *remoteNode)
+				remoteNode.Neighbor = append(remoteNode.Neighbor, node)
+				node.Neighbor = append(node.Neighbor, remoteNode)
 			}
 		}
-		// After a new node inform all other nodes about it too
-		// Gossip starts...
-		// get all the cache data and then share it with other peers
+		testNode := CreateNode("123.23.45.33")
+		testNode2 := CreateNode("232.122.22.10")
+		node.Neighbor = append(node.Neighbor, testNode)
+		node.Neighbor = append(node.Neighbor, testNode2)
 	}
+	// After a new node inform all other nodes about it too
+	// Gossip starts...
+	StartGossip(node)
+	// get all the cache data and then share it with other peers
 }
