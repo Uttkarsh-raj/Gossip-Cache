@@ -9,6 +9,26 @@ import (
 	"github.com/Uttkarsh-raj/Dist-Cache/network"
 )
 
+type HandleError struct {
+	Success bool
+	Message string
+	Data    any
+}
+
+func NewErrorHandler(success bool, message string, data any) string {
+	a := HandleError{
+		Success: success,
+		Message: message,
+		Data:    data,
+	}
+	out, err := json.Marshal(a)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(out)
+}
+
 func AddRoutes(server *network.Server) {
 
 	// Register the node to the server to know other peers and acces the distributed cache
@@ -30,19 +50,19 @@ func AddRoutes(server *network.Server) {
 		ip := strings.Split(r.RemoteAddr, ":")[0]
 		node, present := server.Nodes[ip]
 		if !present {
-			http.Error(w, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", http.StatusBadRequest)
+			http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
 			return
 		}
 
 		key := strings.TrimPrefix(r.URL.Path, "/get/")
 		if key == "" {
-			http.Error(w, "Key is required i.e. /get/key", http.StatusBadRequest)
+			http.Error(w, NewErrorHandler(false, "Key is required i.e. /get/key", nil), http.StatusBadRequest)
 			return
 		}
 
 		cacheItem, exists, err := node.Cache.Get(key)
 		if !exists {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, NewErrorHandler(false, err.Error(), nil), http.StatusNotFound)
 			return
 		}
 
@@ -57,14 +77,14 @@ func AddRoutes(server *network.Server) {
 		ip := strings.Split(r.RemoteAddr, ":")[0]
 		node, present := server.Nodes[ip]
 		if !present {
-			http.Error(w, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", http.StatusBadRequest)
+			http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
 			return
 		}
 
 		// Read the request body
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+			http.Error(w, NewErrorHandler(false, "Failed to read request body"+err.Error(), nil), http.StatusInternalServerError)
 			return
 		}
 		defer r.Body.Close()
@@ -72,7 +92,7 @@ func AddRoutes(server *network.Server) {
 		var item network.CacheItem
 		err = json.Unmarshal(body, &item)
 		if err != nil {
-			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			http.Error(w, NewErrorHandler(false, "Invalid request payload: "+err.Error(), nil), http.StatusBadRequest)
 			return
 		}
 
