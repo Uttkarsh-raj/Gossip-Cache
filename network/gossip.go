@@ -16,19 +16,19 @@ func StartGossip(node *Node) {
 		for key, cacheItem := range selectedNode.Cache.Items {
 			// if expired no need to do anything
 			if cacheItem.TTL < time.Now().UnixMicro() {
+				selectedNode.Cache.Delete(key)
 				continue
 			}
 			currCacheItem, present := node.Cache.Items[key]
 			if !present {
-				node.Cache.Items[key] = cacheItem
+				node.Cache.Add(key, cacheItem.Value, cacheItem.TTL-time.Now().UnixNano())
 			}
-
-			// Check the latest change to the cache
 			if currCacheItem.TTL > cacheItem.TTL {
-				node.Cache.Items[key] = currCacheItem
-				selectedNode.Cache.Items[key] = currCacheItem // Update cache to the remote node sharing cache data with
+				// Check the latest change to the cache
+				// Update cache to the remote node sharing cache data with
+				selectedNode.Cache.Update(key, currCacheItem)
 			} else {
-				node.Cache.Items[key] = cacheItem
+				node.Cache.Update(key, cacheItem)
 			}
 		}
 	}

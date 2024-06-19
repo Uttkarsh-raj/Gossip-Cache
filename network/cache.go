@@ -59,6 +59,12 @@ func (c *Cache) Get(key string) (CacheItem, bool, error) {
 	return item, true, nil
 }
 
+func (c *Cache) Update(key string, updatedItem CacheItem) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+	c.Items[key] = updatedItem
+}
+
 func (c *Cache) Delete(key string) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()

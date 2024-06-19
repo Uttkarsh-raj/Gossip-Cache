@@ -98,6 +98,7 @@ func AddRoutes(server *network.Server) {
 
 		message, item := node.Cache.Add(item.Key, item.Value, item.TTL)
 		response := make(map[string]interface{})
+		response["success"] = true
 		response["message"] = message
 		response["data"] = item
 		json.NewEncoder(w).Encode(response)
