@@ -12,14 +12,14 @@ import (
 func main() {
 	server := network.NewServer()
 
-	go simulateAdditionOfNodes(server)
+	go simulateAdditionOfNodesLocally(server)
 
 	routes.AddRoutes(server)
 
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
-func simulateAdditionOfNodes(server *network.Server) {
+func simulateAdditionOfNodesLocally(server *network.Server) {
 	// Simulating addition of new nodes in the network
 	testNode := network.CreateNode("123.23.45.33")
 	testNode2 := network.CreateNode("232.122.22.10")

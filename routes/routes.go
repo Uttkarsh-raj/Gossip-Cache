@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Uttkarsh-raj/Dist-Cache/network"
 )
@@ -66,7 +67,14 @@ func AddRoutes(server *network.Server) {
 			return
 		}
 
-		json.NewEncoder(w).Encode(cacheItem)
+		cacheItem.TTL = cacheItem.TTL - time.Now().UnixMilli()
+
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["message"] = "Successfully data retrieved"
+		response["data"] = cacheItem
+
+		json.NewEncoder(w).Encode(response)
 
 	})
 

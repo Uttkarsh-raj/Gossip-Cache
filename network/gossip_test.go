@@ -2,7 +2,6 @@ package network
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,9 +13,9 @@ func TestStartGossip(t *testing.T) {
 	node3 := CreateNode("132.147.25.22")
 
 	// Set up initial cache data
-	node1.Cache.Items["key1"] = CacheItem{Key: "key1", Value: "value1", TTL: time.Now().Add(1 * time.Hour).UnixNano()}
-	node2.Cache.Items["key2"] = CacheItem{Key: "key2", Value: "value2", TTL: time.Now().Add(2 * time.Hour).UnixNano()}
-	node3.Cache.Items["key3"] = CacheItem{Key: "key3", Value: "value3", TTL: time.Now().Add(3 * time.Hour).UnixNano()}
+	node1.Cache.Add("key1", "value1", 700)
+	node2.Cache.Add("key2", "value2", 700)
+	node3.Cache.Add("key3", "value3", 700)
 
 	// Establish neighbors
 	testNode := CreateNode("133.17.233.132")
