@@ -1,26 +1,27 @@
-package network
+package test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/Uttkarsh-raj/Dist-Cache/network"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestServer(t *testing.T) {
-	testServer := NewServer()
-	node1 := CreateNode("192.167.23.32")
-	node2 := CreateNode("192.162.43.35")
-	node3 := CreateNode("132.147.25.22")
+	testServer := network.NewServer()
+	node1 := network.CreateNode("192.167.23.32")
+	node2 := network.CreateNode("192.162.43.35")
+	node3 := network.CreateNode("132.147.25.22")
 
 	testServer.Nodes[node1.Addr] = node1
 	testServer.Nodes[node2.Addr] = node2
 	testServer.Nodes[node3.Addr] = node3
 
-	testNode := CreateNode("123.23.34.54")
+	testNode := network.CreateNode("123.23.34.54")
 	testServer.AddNode(testNode)
 
-	expectedNeighbors := []*Node{node1, node2, node3}
+	expectedNeighbors := []*network.Node{node1, node2, node3}
 
 	// Check if testNode has the correct neighbors
 	assert.ElementsMatch(t, expectedNeighbors, testNode.Neighbor, "Neighbors do not match")
@@ -34,7 +35,7 @@ func TestServer(t *testing.T) {
 }
 
 func TestSimulateAdditionOfNodes(t *testing.T) {
-	testServer := NewServer()
+	testServer := network.NewServer()
 
 	simulateAdditionOfNodes(testServer)
 
@@ -59,10 +60,10 @@ func TestSimulateAdditionOfNodes(t *testing.T) {
 	assert.Equal(t, "new-Key", item2.Value, "Value for 'Key' in node2's cache should be 'new-Key'")
 }
 
-func simulateAdditionOfNodes(server *Server) {
+func simulateAdditionOfNodes(server *network.Server) {
 	// Simulating addition of new nodes in the network
-	testNode := CreateNode("123.23.45.33")
-	testNode2 := CreateNode("232.122.22.10")
+	testNode := network.CreateNode("123.23.45.33")
+	testNode2 := network.CreateNode("232.122.22.10")
 	testNode.Cache.Add("key", "hello-World", 5000)
 	testNode2.Cache.Add("Key", "new-Key", 5000)
 
