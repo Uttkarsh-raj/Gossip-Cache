@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Uttkarsh-raj/Dist-Cache/network"
+	"github.com/Uttkarsh-raj/Gossip-Cache/network"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -7,8 +7,8 @@ import (
 
 	// "time"
 
-	"github.com/Uttkarsh-raj/Dist-Cache/network"
-	"github.com/Uttkarsh-raj/Dist-Cache/routes"
+	"github.com/Uttkarsh-raj/Gossip-Cache/network"
+	"github.com/Uttkarsh-raj/Gossip-Cache/routes"
 )
 
 func main() {

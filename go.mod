@@ -1,4 +1,4 @@
-module github.com/Uttkarsh-raj/Dist-Cache
+module github.com/Uttkarsh-raj/Gossip-Cache
 
 go 1.22.2
 

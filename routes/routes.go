@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Uttkarsh-raj/Dist-Cache/network"
+	"github.com/Uttkarsh-raj/Gossip-Cache/network"
 )
 
 type HandleError struct {
