@@ -30,7 +30,7 @@ func (s *Server) AddAndStartGossip(node *Node) {
 	for {
 		go StartGossip(node)
 		time.Sleep(time.Second * 5)
-		println(len(node.Cache.Items))
+		// println(len(node.Cache.Items))
 	}
 }
 
