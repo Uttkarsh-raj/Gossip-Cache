@@ -16,6 +16,7 @@ func StartGossip(node *Node) {
 		for key, cacheItem := range selectedNode.Cache.Items {
 			// if expired no need to do anything
 			if cacheItem.TTL < time.Now().UnixMicro() {
+				// Delete the expired cache item
 				selectedNode.Cache.Delete(key)
 				continue
 			}

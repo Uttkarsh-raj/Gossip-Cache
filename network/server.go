@@ -22,7 +22,7 @@ func NewServer() *Server {
 	}
 }
 
-// Add a new Node-> User to the network and inform about other nodes
+// Add a new Node/User to the network and inform about other nodes
 func (s *Server) AddAndStartGossip(node *Node) {
 	s.AddNode(node)
 	// Gossip starts...
@@ -34,7 +34,7 @@ func (s *Server) AddAndStartGossip(node *Node) {
 	}
 }
 
-// Add a new Node-> User to the network
+// Add a new Node/User to the network
 func (s *Server) AddNode(node *Node) {
 	s.Mutex.Lock()
 	defer s.Mutex.Unlock()
