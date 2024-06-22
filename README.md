@@ -157,6 +157,8 @@ To get started with your Golang application, follow these steps:
       "success": true
     }
     ```
+  - **Get "/disconnect"**
+  * Disconnects from the peer network and allows you to use it as a normal cache. The data will be shared only when you connect again to the server.
   
 ## Screenshots:
 <br>
