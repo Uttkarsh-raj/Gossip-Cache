@@ -27,11 +27,13 @@ func (s *Server) AddAndStartGossip(node *Node) {
 	s.AddNode(node)
 	// Gossip starts...
 	// get all the cache data and then share it with other peers
-	for {
-		go StartGossip(node)
-		time.Sleep(time.Second * 5)
-		// println(len(node.Cache.Items))
-	}
+	go func() {
+		for {
+			go StartGossip(node)
+			time.Sleep(time.Second * 5)
+			// println(len(node.Cache.Items))
+		}
+	}()
 }
 
 // Add a new Node/User to the network

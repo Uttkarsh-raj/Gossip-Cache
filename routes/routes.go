@@ -42,6 +42,13 @@ func AddRoutes(server *network.Server) {
 		// add nodes and retrieve other nodes
 		server.AddAndStartGossip(node)
 
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["message"] = "Successfully connected to server."
+		response["data"] = nil
+
+		json.NewEncoder(w).Encode(response)
+
 	})
 
 	// Retrieve the cache from the in-memory cache as the data is stored locally after knowing the peers
@@ -71,7 +78,7 @@ func AddRoutes(server *network.Server) {
 
 		response := make(map[string]interface{})
 		response["success"] = true
-		response["message"] = "Successfully data retrieved"
+		response["message"] = "Connected to the server successfully!!"
 		response["data"] = cacheItem
 
 		json.NewEncoder(w).Encode(response)

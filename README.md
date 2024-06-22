@@ -104,6 +104,14 @@ To get started with your Golang application, follow these steps:
 
 - **Get "/"**
   * Connects to the gateway server and stay connected.
+  * Response as :
+    ```
+    {
+      "data": null,
+      "message": "Successfully connected to server.",
+      "success": true
+    }
+    ```
       
 - **Get "/get/:key"**
   * Response as :
