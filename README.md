@@ -33,7 +33,7 @@
 https://github.com/Uttkarsh-raj/Gossip-Cache/assets/106571927/328e2194-1468-430a-b933-d6c4b05c506b
 
 <br>
-The above demo illustrates the key features of Gossip-Cache. It begins by simulating the addition of nodes, each initialized with a cache, to the server. Two clients are then introduced to showcase how their caches are shared. The server serves as a gateway for the nodes, facilitating their entry into the network. This demonstration effectively highlights the concept of eventual consistency, as the data may not be immediately available to all nodes but is eventually synchronized across the network. The synchronization time is directly influenced by the number of nodes in the network.
+The above demo illustrates some of the key features of Gossip-Cache. It begins by simulating the addition of nodes, each initialized with a cache, to the server. Two clients are then introduced to showcase how their caches are shared. The server serves as a gateway for the nodes, facilitating their entry into the network. This demonstration effectively highlights the concept of eventual consistency, as the data may not be immediately available to all nodes but is eventually synchronized across the network. The synchronization time is directly influenced by the number of nodes in the network.It also provides you to connect as a disconnected node incase you dont want to connect as a gossip peer node and want to use it just as a normal cache. It also unlocks a new route of /delete/:key which allows you to delete the cache item directly.
 
 ### Key Concepts
 1. **Distributed Systems** : The project is fundamentally a distributed system since it involves multiple nodes (clients) that coordinate and communicate to achieve a common goal.
@@ -104,6 +104,14 @@ To get started with your Golang application, follow these steps:
 
 - **Get "/"**
   * Connects to the gateway server and stay connected.
+  * Response as :
+    ```
+    {
+      "data": null,
+      "message": "Successfully connected to server.",
+      "success": true
+    }
+    ```
       
 - **Get "/get/:key"**
   * Response as :
@@ -146,6 +154,37 @@ To get started with your Golang application, follow these steps:
         "ttl": 1718998846229906412
       },
       "message": "New value successfully added",
+      "success": true
+    }
+    ```
+  - **Get "/disconnect"**
+  * Disconnects from the peer network and allows you to use it as a normal cache. The data will be shared only when you connect again to the server.
+
+  - **Get "/localcache"**
+  * Connects to the gateway server and work as a normal cache.
+  * Response as :
+    ```
+    {
+      "data": null,
+      "message": "Successfully connected to server.",
+      "success": true
+    }
+    ```
+  - **Get "/delete/:key"**
+  * Available only when not connected to the network i.e. as normal cache.
+  * Use /disconnect if already connected as a node to the network or /localcache if want to connect as a disconnected node.
+  * Response as :
+    ```
+    {
+      "data": {
+        "key": "hello",
+        "value": [
+            "there",
+            "yoii"
+          ],
+          "ttl": 1719127788523315000
+      },
+      "message": "Connected to the server successfully!!",
       "success": true
     }
     ```

@@ -27,13 +27,14 @@ func main() {
 // 	// Simulating addition of new nodes in the network
 // 	testNode := network.CreateNode("123.23.45.33")
 // 	testNode2 := network.CreateNode("232.122.22.10")
+// 	time.Sleep(time.Duration(time.Second * 5))
 // 	go func() {
-// 		testNode.Cache.Add("key", "hello-World", 5000)
+// 		testNode.Cache.Add("key", "hello-World", 500)
 // 		server.AddNode(testNode)
-// 		time.Sleep(time.Duration(time.Second * 3))
+// 		time.Sleep(time.Duration(time.Second * 1))
 // 	}()
 // 	go func() {
-// 		testNode2.Cache.Add("Key", "new-Key", 5000)
+// 		testNode2.Cache.Add("Key", "new-Key", 1000)
 // 		server.AddNode(testNode2)
 // 		time.Sleep(time.Duration(time.Second * 7))
 // 	}()

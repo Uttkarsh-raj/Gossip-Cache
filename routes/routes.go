@@ -37,10 +37,52 @@ func AddRoutes(server *network.Server) {
 		ip := strings.Split(r.RemoteAddr, ":")[0]
 		node, present := server.Nodes[ip]
 		if !present {
-			node = network.CreateNode(ip)
+			dissnode, pres := server.DisconnectedNodes[ip]
+			if !pres {
+				node = network.CreateNode(ip)
+			} else {
+				server.ReviveNode(dissnode)
+				node = dissnode
+			}
 		}
 		// add nodes and retrieve other nodes
 		server.AddAndStartGossip(node)
+
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["message"] = "Successfully connected to network."
+		response["data"] = nil
+
+		json.NewEncoder(w).Encode(response)
+
+	})
+
+	// Register the node to the server to work as a normal cache
+	http.HandleFunc("/localcache", func(w http.ResponseWriter, r *http.Request) {
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+		_, present := server.Nodes[ip]
+		if present {
+			http.Error(w, NewErrorHandler(false, "Already an active node in the network", nil), http.StatusBadRequest)
+			return
+		}
+		_, present = server.DisconnectedNodes[ip]
+		if present {
+			http.Error(w, NewErrorHandler(false, "Node already working as a local cache", nil), http.StatusBadRequest)
+			return
+		}
+
+		// add node as disconnected
+		server.Mutex.Lock()
+		defer server.Mutex.Unlock()
+		node := network.CreateNode(ip)
+		server.DisconnectedNodes[ip] = node
+
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["message"] = "Successfully connected to server."
+		response["data"] = nil
+
+		json.NewEncoder(w).Encode(response)
 
 	})
 
@@ -48,11 +90,17 @@ func AddRoutes(server *network.Server) {
 	// If not known then will eventually as the nodes are queried randomly
 	// The key needs to be provided in the params i.e. /get/key
 	http.HandleFunc("/get/", func(w http.ResponseWriter, r *http.Request) {
+		server.Mutex.Lock()
+		defer server.Mutex.Unlock()
 		ip := strings.Split(r.RemoteAddr, ":")[0]
 		node, present := server.Nodes[ip]
 		if !present {
-			http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
-			return
+			dissNode, pres := server.DisconnectedNodes[ip]
+			if !pres {
+				http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
+				return
+			}
+			node = dissNode
 		}
 
 		key := strings.TrimPrefix(r.URL.Path, "/get/")
@@ -71,7 +119,7 @@ func AddRoutes(server *network.Server) {
 
 		response := make(map[string]interface{})
 		response["success"] = true
-		response["message"] = "Successfully data retrieved"
+		response["message"] = "Connected to the server successfully!!"
 		response["data"] = cacheItem
 
 		json.NewEncoder(w).Encode(response)
@@ -81,12 +129,17 @@ func AddRoutes(server *network.Server) {
 	// Set a new value for the key in the cache
 	// If the data is already present it will update that value
 	http.HandleFunc("/set", func(w http.ResponseWriter, r *http.Request) {
-
+		server.Mutex.Lock()
+		defer server.Mutex.Unlock()
 		ip := strings.Split(r.RemoteAddr, ":")[0]
 		node, present := server.Nodes[ip]
 		if !present {
-			http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
-			return
+			dissNode, pres := server.DisconnectedNodes[ip]
+			if !pres {
+				http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
+				return
+			}
+			node = dissNode
 		}
 
 		// Read the request body
@@ -110,6 +163,63 @@ func AddRoutes(server *network.Server) {
 		response["message"] = message
 		response["data"] = item
 		json.NewEncoder(w).Encode(response)
+	})
+
+	// // Remove the cache from the in-memory cache as the data is stored locally after knowing the peers
+	// // The key needs to be provided in the params i.e. /get/key
+	http.HandleFunc("/delete/", func(w http.ResponseWriter, r *http.Request) {
+		server.Mutex.Lock()
+		defer server.Mutex.Unlock()
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+		node, pres := server.DisconnectedNodes[ip]
+		if !pres {
+			http.Error(w, NewErrorHandler(false, "In-memory Feature: Available only for disconnected nodes. Please try to connect and then disconnect using the gateway using the '/' route to register.", nil), http.StatusBadRequest)
+			return
+		}
+
+		key := strings.TrimPrefix(r.URL.Path, "/delete/")
+		if key == "" {
+			http.Error(w, NewErrorHandler(false, "Key is required i.e. /get/key", nil), http.StatusBadRequest)
+			return
+		}
+
+		item, exists, err := node.Cache.Get(key)
+		if !exists {
+			http.Error(w, NewErrorHandler(false, err.Error(), nil), http.StatusNotFound)
+			return
+		}
+
+		node.Cache.Delete(key)
+
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["message"] = "Connected to the server successfully!!"
+		response["data"] = item
+
+		json.NewEncoder(w).Encode(response)
+
+	})
+
+	// Disconnects from the network and enables you use it as an in-memory cache
+	http.HandleFunc("/disconnect", func(w http.ResponseWriter, r *http.Request) {
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+
+		node, present := server.Nodes[ip]
+		if !present {
+			http.Error(w, NewErrorHandler(false, "Node not found", nil), http.StatusNotFound)
+			return
+		}
+
+		node.CancelFunc()
+		// Remove the node from the server
+		server.RemoveNode(node)
+
+		// Send response after removal is completed
+		// response := make(map[string]interface{})
+		// response["success"] = true
+		// response["message"] = "Node disconnected successfully."
+		// response["data"] = node
+		// json.NewEncoder(w).Encode(response)
 	})
 
 }
