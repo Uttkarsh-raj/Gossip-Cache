@@ -1,6 +1,6 @@
 # Gossip-Cache
 
- Gossip-Cache is a project that focuses on implementing a cache synchronization mechanism for distributed systems. It utilizes the [Gossip Protocol](https://en.wikipedia.org/wiki/Gossip_protocol) to ensure that all nodes within a network maintain a synchronized cache state, even when faced with the challenges of [Eventual Consistency](https://en.wikipedia.org/wiki/Eventual_consistency) . This approach helps in enhancing the overall performance and reliability of distributed systems by ensuring that cached data remains consistent across all nodes, thereby reducing latency and improving data access times.
+ Gossip-Cache is a project that focuses on implementing a cache synchronization mechanism for distributed systems. It utilizes the [Gossip Protocol](https://en.wikipedia.org/wiki/Gossip_protocol) to ensure that all nodes within a network maintain a synchronized cache state, and works together to provide [Eventual Consistency](https://en.wikipedia.org/wiki/Eventual_consistency) . This approach helps in enhancing the overall performance and reliability of distributed systems by ensuring that cached data remains consistent across all nodes, thereby reducing latency and improving data access times. Additionally, it allows nodes to function as a disconnected cache, operating independently from the gossip network as a normal cache.
 <br><br>
 
 <!--TABLE OF CONTENTS-->
@@ -33,7 +33,8 @@
 https://github.com/Uttkarsh-raj/Gossip-Cache/assets/106571927/328e2194-1468-430a-b933-d6c4b05c506b
 
 <br>
-The above demo illustrates some of the key features of Gossip-Cache. It begins by simulating the addition of nodes, each initialized with a cache, to the server. Two clients are then introduced to showcase how their caches are shared. The server serves as a gateway for the nodes, facilitating their entry into the network. This demonstration effectively highlights the concept of eventual consistency, as the data may not be immediately available to all nodes but is eventually synchronized across the network. The synchronization time is directly influenced by the number of nodes in the network.It also provides you to connect as a disconnected node incase you dont want to connect as a gossip peer node and want to use it just as a normal cache. It also unlocks a new route of /delete/:key which allows you to delete the cache item directly.
+
+The above demo illustrates some of the **Key features** of Gossip-Cache. It begins by simulating the addition of nodes, each initialized with a cache, to the server. Two clients are then introduced to showcase how their caches are shared. The server serves as a gateway for the nodes, facilitating their entry into the network. This demonstration effectively highlights the concept of **eventual consistency**, as the data may not be immediately available to all nodes but is eventually synchronized across the network. The synchronization time is directly influenced by the number of nodes in the network.It also provides you to connect as a disconnected node incase you dont want to connect as a gossip peer node and want to use it just as a normal cache. It also unlocks a new route of /delete/:key which allows you to delete the cache item directly.
 
 ### Key Concepts
 1. **Distributed Systems** : The project is fundamentally a distributed system since it involves multiple nodes (clients) that coordinate and communicate to achieve a common goal.
@@ -157,10 +158,10 @@ To get started with your Golang application, follow these steps:
       "success": true
     }
     ```
-  - **Get "/disconnect"**
+- **GET "/disconnect"**
   * Disconnects from the peer network and allows you to use it as a normal cache. The data will be shared only when you connect again to the server.
 
-  - **Get "/localcache"**
+- **GET "/localcache"**
   * Connects to the gateway server and work as a normal cache.
   * Response as :
     ```
@@ -170,7 +171,7 @@ To get started with your Golang application, follow these steps:
       "success": true
     }
     ```
-  - **Get "/delete/:key"**
+- **GET "/delete/:key"**
   * Available only when not connected to the network i.e. as normal cache.
   * Use /disconnect if already connected as a node to the network or /localcache if want to connect as a disconnected node.
   * Response as :
