@@ -50,6 +50,35 @@ func AddRoutes(server *network.Server) {
 
 		response := make(map[string]interface{})
 		response["success"] = true
+		response["message"] = "Successfully connected to network."
+		response["data"] = nil
+
+		json.NewEncoder(w).Encode(response)
+
+	})
+
+	// Register the node to the server to work as a normal cache
+	http.HandleFunc("/localcache", func(w http.ResponseWriter, r *http.Request) {
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+		_, present := server.Nodes[ip]
+		if present {
+			http.Error(w, NewErrorHandler(false, "Already an active node in the network", nil), http.StatusBadRequest)
+			return
+		}
+		_, present = server.DisconnectedNodes[ip]
+		if present {
+			http.Error(w, NewErrorHandler(false, "Node already working as a local cache", nil), http.StatusBadRequest)
+			return
+		}
+
+		// add node as disconnected
+		server.Mutex.Lock()
+		defer server.Mutex.Unlock()
+		node := network.CreateNode(ip)
+		server.DisconnectedNodes[ip] = node
+
+		response := make(map[string]interface{})
+		response["success"] = true
 		response["message"] = "Successfully connected to server."
 		response["data"] = nil
 
@@ -138,44 +167,38 @@ func AddRoutes(server *network.Server) {
 
 	// // Remove the cache from the in-memory cache as the data is stored locally after knowing the peers
 	// // The key needs to be provided in the params i.e. /get/key
-	// http.HandleFunc("/delete/", func(w http.ResponseWriter, r *http.Request) {
-	// 	server.Mutex.Lock()
-	// 	defer server.Mutex.Unlock()
-	// 	ip := strings.Split(r.RemoteAddr, ":")[0]
-	// 	node, present := server.Nodes[ip]
-	// 	if !present {
-	// 		dissNode, pres := server.DisconnectedNodes[ip]
-	// 		if !pres {
-	// 			http.Error(w, NewErrorHandler(false, "New nodes need to be registered. Please try to connect using the gateway using the '/' route", nil), http.StatusBadRequest)
-	// 			return
-	// 		}
-	// 		node = dissNode
-	// 	}
+	http.HandleFunc("/delete/", func(w http.ResponseWriter, r *http.Request) {
+		server.Mutex.Lock()
+		defer server.Mutex.Unlock()
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+		node, pres := server.DisconnectedNodes[ip]
+		if !pres {
+			http.Error(w, NewErrorHandler(false, "In-memory Feature: Available only for disconnected nodes. Please try to connect and then disconnect using the gateway using the '/' route to register.", nil), http.StatusBadRequest)
+			return
+		}
 
-	// 	key := strings.TrimPrefix(r.URL.Path, "/delete/")
-	// 	if key == "" {
-	// 		http.Error(w, NewErrorHandler(false, "Key is required i.e. /get/key", nil), http.StatusBadRequest)
-	// 		return
-	// 	}
+		key := strings.TrimPrefix(r.URL.Path, "/delete/")
+		if key == "" {
+			http.Error(w, NewErrorHandler(false, "Key is required i.e. /get/key", nil), http.StatusBadRequest)
+			return
+		}
 
-	// 	item, exists, err := node.Cache.Get(key)
-	// 	if !exists {
-	// 		http.Error(w, NewErrorHandler(false, err.Error(), nil), http.StatusNotFound)
-	// 		return
-	// 	}
+		item, exists, err := node.Cache.Get(key)
+		if !exists {
+			http.Error(w, NewErrorHandler(false, err.Error(), nil), http.StatusNotFound)
+			return
+		}
 
-	// 	item.TTL = 0
-	// 	node.Cache.Update(key, item)
-	// 	fmt.Println(item)
+		node.Cache.Delete(key)
 
-	// 	response := make(map[string]interface{})
-	// 	response["success"] = true
-	// 	response["message"] = "Connected to the server successfully!!"
-	// 	response["data"] = item
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["message"] = "Connected to the server successfully!!"
+		response["data"] = item
 
-	// 	json.NewEncoder(w).Encode(response)
+		json.NewEncoder(w).Encode(response)
 
-	// })
+	})
 
 	// Disconnects from the network and enables you use it as an in-memory cache
 	http.HandleFunc("/disconnect", func(w http.ResponseWriter, r *http.Request) {

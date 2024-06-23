@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -35,7 +34,7 @@ func (s *Server) AddAndStartGossip(node *Node) {
 		for {
 			select {
 			case <-node.Ctx.Done():
-				fmt.Printf("%s Disconnected !!\n", node.Addr)
+				// fmt.Printf("%s Disconnected !!\n", node.Addr)
 				return
 			default:
 				go StartGossip(node)

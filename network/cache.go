@@ -54,7 +54,6 @@ func (c *Cache) Get(key string) (CacheItem, bool, error) {
 		return CacheItem{}, false, errors.New("error: Key does not exist")
 	}
 	if item.TTL < currentTime {
-		c.Delete(key)
 		return CacheItem{}, false, errors.New("error: Key expired. TTL crossed")
 	}
 	return item, true, nil
